@@ -13,22 +13,24 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
-const dotenv_1 = __importDefault(require("dotenv"));
-const cors_1 = __importDefault(require("cors"));
-const joinus_1 = __importDefault(require("./apis/joinus"));
-const app = (0, express_1.default)();
-dotenv_1.default.config();
-app.use((0, cors_1.default)({
-    origin: "*",
-    methods: ["POST", "GET"],
+const sendEmail_1 = __importDefault(require("../util/sendEmail"));
+const router = express_1.default.Router();
+router.post("/join-us", (_req, _res) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log(_req.body.email);
+    try {
+        const sendVerify = yield (0, sendEmail_1.default)(_req.body.email, "New User Verify", "link");
+        if (sendVerify) {
+            _res.status(200).json({
+                success: true,
+            });
+        }
+        else {
+            throw new Error("Server Error");
+        }
+    }
+    catch (err) {
+        console.log(err);
+    }
 }));
-app.use(express_1.default.json());
-app.use(express_1.default.urlencoded({ extended: true }));
-app.get("/", (_req, _res) => __awaiter(void 0, void 0, void 0, function* () {
-    _res.json({ msg: "Hello World" });
-}));
-app.use("/api", joinus_1.default);
-app.listen(process.env.BACK_PORT, () => {
-    console.log(`Server running on ${process.env.BACK_PORT}`);
-});
-//# sourceMappingURL=app.js.map
+exports.default = router;
+//# sourceMappingURL=joinus.js.map
